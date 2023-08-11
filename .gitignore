@@ -162,3 +162,4 @@ cython_debug/
 .vscode/
 virtualenv/
 resultsList.json
+poll_search_results.json
