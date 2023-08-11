@@ -39,7 +39,7 @@ class MozioApi:
                 break
 
             # Waits two secconds before pull again
-            print("Keep looking for results ...")
+            print("Looking for results ...")
             time.sleep(2)
 
         with open('poll_search_results.json', 'w') as file:
@@ -75,7 +75,6 @@ class MozioApi:
 
         # Extract the cheapest dummy provider
         cheapest_dummy = cls.get_cheapest_dummy_provider(poll_responses)
-
         if not cheapest_dummy:
             return None
 
@@ -125,7 +124,6 @@ class MozioApi:
             # Check reservation status. If the "completed" status appears, break the loop.
             if response_data.get('status', '') == 'completed':
                 break
-
             if response_data.get('status', '') == 'failed':
                 print('Failed', response.status_code)
                 break
@@ -135,34 +133,14 @@ class MozioApi:
 
         return response_data
 
+    @classmethod
+    def cancel_reservation(cls, reservation_id):
+        # Cancels an existing reservation.
+        endpoint = f"{cls.BASE_URL}/v2/reservations/{reservation_id}/"
+        response = requests.delete(endpoint, headers=cls.HEADERS)
 
-if __name__ == '__main__':
-    search_params = {
-        'start_address': '44 Tehama Street, San Francisco, CA, USA',
-        'end_address': 'SFO',
-        'mode': 'one_way',
-        'pickup_datetime': '2023-12-01 15:30',
-        'num_passengers': 2,
-        'currency': 'USD',
-        'campaign': 'Felipe Noguera'
-    }
-
-    # Test Search method
-    search_response = MozioApi.search(search_params)
-    # print('search_response: ', search_response)
-    print('search_response: succesfull')
-
-    # Test poll_search method
-    search_id = search_response['search_id']
-    poll_response = MozioApi.poll_search(search_id)
-    print('poll_response: succesfull')
-
-    # Test book_reservation method
-    booking_response = MozioApi.book_reservation(poll_response)
-    print(type(booking_response), booking_response)
-    if booking_response:
-        final_response = poll_response[-1]
-        search_id = final_response.get('search_id')
-
-    reservation_poll_response = MozioApi.poll_reservation(search_id)
-    print(f'reservation_poll_response: {reservation_poll_response}')
+        # Check if the request was successful
+        if response.status_code == 202:
+            return response.json()
+        else:
+            return {'error': 'Cancelation failed', 'details': response.json()}

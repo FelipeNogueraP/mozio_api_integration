@@ -11,3 +11,8 @@ api integration for Mozio web application
 5. Implement API Integration
 6. Test and debug until all tests are passed
 7. Submit code
+
+# How to run the program:
+
+1. Go to the main.py file and execute it.
+2. It contains the **name** == '**main**':
