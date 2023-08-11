@@ -3,6 +3,7 @@
 import requests
 import time
 import json
+import random
 
 
 class MozioApi:
@@ -38,6 +39,7 @@ class MozioApi:
                 break
 
             # Waits two secconds before pull again
+            print("Keep looking for results ...")
             time.sleep(2)
 
         with open('poll_search_results.json', 'w') as file:
@@ -82,6 +84,9 @@ class MozioApi:
         result_id = cheapest_dummy.get('result_id')
 
         # Prepare booking payload
+        # Generate random flight numbers to avoid the error, duplicate_reservation
+        flight_num = random.randint(1, 999)
+
         booking_payload = {
             "search_id": poll_responses[0].get("search_id"),
             "result_id": cheapest_dummy.get("result_id"),
@@ -91,7 +96,7 @@ class MozioApi:
             "first_name": "Felipe",
             "last_name": "Noguera",
             "airline": "AA",
-            "flight_number": "5555"
+            "flight_number": flight_num
         }
 
         # Making the booking request
@@ -100,6 +105,35 @@ class MozioApi:
             endpoint, headers=cls.HEADERS, json=booking_payload)
 
         return response.json()
+
+    @classmethod
+    def poll_reservation(cls, search_id):
+        endpoint = f'{cls.BASE_URL}/v2/reservations/{search_id}/poll/'
+
+        while True:
+            response = requests.get(endpoint, headers=cls.HEADERS)
+
+            # Check if the response is a JSON
+            try:
+                response_data = response.json()
+
+            except ValueError:
+                print("Received non -json response: ", response.status_code)
+                print(response.text)
+                response_data = {}
+
+            # Check reservation status. If the "completed" status appears, break the loop.
+            if response_data.get('status', '') == 'completed':
+                break
+
+            if response_data.get('status', '') == 'failed':
+                print('Failed', response.status_code)
+                break
+
+            # Waits for a specific time before pulling again.
+            time.sleep(2)
+
+        return response_data
 
 
 if __name__ == '__main__':
@@ -125,5 +159,10 @@ if __name__ == '__main__':
 
     # Test book_reservation method
     booking_response = MozioApi.book_reservation(poll_response)
-    print(booking_response)
-    print("booking succesfull")
+    print(type(booking_response), booking_response)
+    if booking_response:
+        final_response = poll_response[-1]
+        search_id = final_response.get('search_id')
+
+    reservation_poll_response = MozioApi.poll_reservation(search_id)
+    print(f'reservation_poll_response: {reservation_poll_response}')
