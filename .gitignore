@@ -163,3 +163,4 @@ cython_debug/
 virtualenv/
 resultsList.json
 poll_search_results.json
+secrets.py

@@ -4,13 +4,14 @@ import requests
 import time
 import json
 import random
+import secrets
 
 
 class MozioApi:
     # Class for consuming Mozio API
     BASE_URL = 'https://api-testing.mozio.com'
     HEADERS = {
-        'API-KEY': '6bd1e15ab9e94bb190074b4209e6b6f9',
+        'API-KEY': secrets.API_KEY,
         'Content-Type': 'application/json'
     }
 
