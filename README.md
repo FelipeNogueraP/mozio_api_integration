@@ -14,5 +14,9 @@ api integration for Mozio web application
 
 # How to run the program:
 
-1. Go to the main.py file and execute it.
-2. It contains the **name** == '**main**':
+1. Create a file named secrets.py in the main folder of this project.
+2. In the secrets.py file, write the apy key in this format:
+   API_KEY = 'put_your_key_here'
+
+3. Go to the main.py file and execute it.
+4. It contains the **name** == '**main**':
